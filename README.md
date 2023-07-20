@@ -55,30 +55,6 @@ A sliding window is another type of windowing strategy used in stream processing
 
 In a sliding window, you specify both a window size and a "sliding" or "advancement" duration. The window size determines the size of each window, and the sliding duration determines the frequency at which the window moves forward.
 
-## Trigger Counter
-Trigger is a mechanism that determines when to emit partial results (intermediate results) during the processing of windowed data. Triggers are essential for controlling how data is accumulated within windows and when to produce results for downstream processing. Triggers play a crucial role in both batch and streaming processing, but they are especially significant in streaming data scenarios. When data is being processed within windows, a trigger decides when to emit the intermediate results based on the arrival of data elements and the passage of time. 
-Setup Custom trigger Counter :
-```
-beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING)
-```
-
-This sets up a custom trigger for the windowing operation. The trigger used here is Repeatedly, which repeatedly fires the trigger condition based on the specified sub-trigger. In this case, the sub-trigger is AfterCount(10), which fires after every 10 data elements have been processed within the global window.
-
-Suppose we have the following data:
-
-```
-Data: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
-```
-When using the specified windowing transformation, the data elements will all be grouped into a single global window. The custom trigger Repeatedly(AfterCount(10)) will fire after every 10 elements have been processed within the window.
-
-The processing of the data elements will look like this:
-
-1. Process the first 10 data elements (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']).
-2. The trigger AfterCount(10) fires, and the intermediate result for the first 10 elements is emitted.
-3. Process the next 4 data elements (['K', 'L', 'M', 'N']).
-4. The trigger AfterCount(10) fires again, and the intermediate result for the next 4 elements is emitted.
-The final output will contain two intermediate results, one for each group of 10 elements, accumulated over time.
-
 ## Watermark 
 Watermarks are used to determine how far the processing has progressed with respect to event time. The watermark indicates the maximum timestamp seen so far and acts as a progress marker for event time. When the watermark moves past a window's end time, the window is considered closed, and any remaining data is handled as late data.
 
@@ -131,5 +107,80 @@ Element ('A', 3) arrives at timestamp 30. It belongs to the window [30, 40), whi
 
 The output window is [20, 30), and the values are [1, 2], which includes elements ('A', 1) and ('B', 2) processed within the window. Element ('A', 3) is discarded because it is considered late data due to its arrival after the window's end time.
 
+## Trigger
+Trigger is a mechanism that determines when to emit partial results (intermediate results) during the processing of windowed data. Triggers are essential for controlling how data is accumulated within windows and when to produce results for downstream processing. Triggers play a crucial role in both batch and streaming processing, but they are especially significant in streaming data scenarios. When data is being processed within windows, a trigger decides when to emit the intermediate results based on the arrival of data elements and the passage of time. 
 
+There are several trigger example:
 
+### Event Time Trigger:
+An event time trigger fires based on the event timestamps of data elements. It allows you to control when to emit partial results based on the progress of event time in the data stream. In this example, we'll use AfterWatermark trigger, which fires when the watermark (representing the progress of event time) passes the end of the window.
+```
+import apache_beam as beam
+from apache_beam.transforms.trigger import AfterWatermark
+
+with beam.Pipeline() as p:
+    data = p | beam.Create([
+        ('A', 1, 10),  # Event 'A' with value 1, timestamp 10
+        ('B', 2, 20),  # Event 'B' with value 2, timestamp 20
+        ('A', 3, 15),  # Event 'A' with value 3, timestamp 15 (out-of-order)
+    ])
+
+    # Apply windowing based on event time (timestamps)
+    windowed_data = data | beam.WindowInto(
+        beam.window.FixedWindows(10),
+        trigger=AfterWatermark(early=beam.transforms.trigger.AfterProcessingTime(2)),
+        accumulation_mode=beam.transforms.trigger.AccumulationMode.DISCARDING
+    )
+
+    # Rest of the pipeline to process windowed_data
+    # ...
+```
+In this example, we use a fixed window of size 10 units of time. The AfterWatermark trigger fires when the watermark passes the end of the window. We also use an early trigger AfterProcessingTime(2), which fires after 2 units of processing time, enabling early results. Accumulation mode is set to DISCARDING to discard early results.
+
+### Processing Time Trigger:
+A processing time trigger fires based on the processing time of data elements. It allows you to emit partial results periodically, based on processing time, regardless of event timestamps.
+```
+import apache_beam as beam
+from apache_beam.transforms.trigger import AfterProcessingTime
+
+with beam.Pipeline() as p:
+    data = p | beam.Create([
+        ('A', 1),
+        ('B', 2),
+        ('C', 3),
+    ])
+
+    # Apply windowing and trigger based on processing time
+    windowed_data = data | beam.WindowInto(
+        beam.window.FixedWindows(10),
+        trigger=AfterProcessingTime(10),  # Trigger every 10 seconds
+        accumulation_mode=beam.transforms.trigger.AccumulationMode.DISCARDING
+    )
+
+    # Rest of the pipeline to process windowed_data
+    # ...
+```
+In this example, we use a fixed window of size 10 units of time. The AfterProcessingTime trigger fires every 10 seconds (based on processing time). Accumulation mode is set to DISCARDING to discard intermediate results.
+
+### Data-Driven Trigger:
+A data-driven trigger fires based on the data characteristics itself, rather than relying solely on time. For example, you can define a custom trigger based on the number of elements or certain conditions in the data.
+```
+import apache_beam as beam
+from apache_beam.transforms.trigger import AfterCount
+
+with beam.Pipeline() as p:
+    data = p | beam.Create([1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+    # Apply windowing and data-driven trigger (AfterCount)
+    windowed_data = data | beam.WindowInto(
+        beam.window.FixedWindows(3),
+        trigger=AfterCount(5),  # Trigger after 5 elements
+        accumulation_mode=beam.transforms.trigger.AccumulationMode.DISCARDING
+    )
+
+    # Rest of the pipeline to process windowed_data
+    # ...
+```
+In this example, we use a fixed window of size 3 elements. The AfterCount trigger fires when 5 elements have been processed within the window. Accumulation mode is set to DISCARDING to discard early results.
+
+These are just examples to illustrate different triggers. The choice of trigger depends on your specific use case and desired behavior for processing data within windows. You can customize triggers, combine multiple triggers, and use complex logic to achieve the desired windowing behavior and control when to emit partial results.
