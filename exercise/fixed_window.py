@@ -46,7 +46,7 @@ def calculateProfit(elements):
 
 def key_pair(element_list):
   # key-value pair of (team_id, 1)
-  print(element_list[3], ' ',1)
+  print(element_list[0], ' ',element_list[8])
   return element_list[0],int(element_list[8])
 
 pubsub_data= (
