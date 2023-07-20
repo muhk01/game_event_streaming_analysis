@@ -28,6 +28,20 @@ With beam.WindowInto(window.FixedWindows(20)), the data will be divided into the
 ('D', 4) at timestamp 45
 ```
 
+In summary, to process fixed streaming data it is beneficial to include timestamps in the data at the publisher (producer) side before sending it to a message queue or streaming system. Including timestamps in the data at the publisher side provides valuable information about when events occurred, which is essential for correct event time processing and accurate analysis in downstream consumers (subscribers).
+
+Here are some reasons why adding timestamps at the publisher side is advantageous:
+
+Event Ordering: As you mentioned, adding timestamps at the publisher side ensures that the order of events is preserved. When data is sent with timestamps, the consuming side (subscriber) can process the data in the correct event time order. This is crucial for time-based windowing and accurate aggregation of data over time windows.
+
+Event Time Processing: Many streaming data processing systems, including Apache Beam, perform event time processing, where events are ordered based on their timestamps, rather than the order in which they arrive. By providing timestamps at the publisher side, you enable event time processing in the consuming pipeline.
+
+Late Data Handling: Timestamps help handle late-arriving data accurately. If an event arrives with a timestamp indicating it belongs to a previous window, the consuming pipeline can process it accordingly, even if the event arrives late. This is important for correct analysis, especially when data may be delayed in transit or when processing is subject to variability.
+
+Time-Based Windowing: Timestamps are essential for creating time-based windows in streaming data processing. Time-based windows group data elements based on their event times, allowing you to perform time-based aggregations and computations.
+
+Data Synchronization: In distributed systems, multiple producers may be sending data to a central message queue or streaming system. By including timestamps at the producer side, you can ensure that data from different sources is synchronized based on event times, which is especially important in scenarios where data from multiple sources needs to be combined for analysis.
+
 ## Sliding Window
 
 ![alt text](https://raw.githubusercontent.com/muhk01/game_event_streaming_analysis/main/exercise/img/sliding_window.PNG)
