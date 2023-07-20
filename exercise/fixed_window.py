@@ -56,7 +56,8 @@ pubsub_data= (
                 | 'Decode' >> beam.Map(decode_incoming)
                 | 'Split Row' >> beam.Map(lambda row : row.split(','))                            
                 | 'Filter By Country' >> beam.Filter(lambda elements : (elements[1] == "Mumbai" or elements[1] == "Bangalore"))
-                | 'Create Profit Column' >> beam.Map(calculateProfit)                             
+                | 'Create Profit Column' >> beam.Map(calculateProfit)      
+		| 'Apply custom timestamp' >> beam.Map(custom_timestamp) 
                 | 'Form Key Value pair' >> beam.Map(key_pair) 
                 | 'Window' >> beam.WindowInto(window.FixedWindows(20))  #Trigger Sum after 20 Seconds
                 | 'Group players and their score' >> beam.CombinePerKey(sum)
