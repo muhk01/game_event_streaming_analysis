@@ -3,7 +3,7 @@
 This project purpose is to analyze event occure in gaming instances, suppose in a gaming match between two teams, we could simulate match event, and analyzing them,
 using **Google PubSub** to simulate realtime event, and **Google Dataflow** to deploy **Apache Beam** pipeline job to analyzing the data.
 
-# Exercise of Fundamental Streaming Data Pipeline
+# Fundamental Streaming Data Pipeline
 
 ## Fixed Window
 ![alt text](https://raw.githubusercontent.com/muhk01/game_event_streaming_analysis/main/exercise/img/fixed_window.PNG)
