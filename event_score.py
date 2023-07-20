@@ -51,7 +51,7 @@ pubsub_data = (
 player_score = (
                 pubsub_data 
                 | 'Form k,v pair of (player_id, 1)' >> beam.Map( player_pair )
-                | 'Window for player' >> beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING) 
+                | 'Window for player' >> beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING)  #Trigger sum after 10 same player accumulated.
                 | 'Group players and their score' >> beam.CombinePerKey(sum)
                 | 'Encode player info to byte string' >> beam.Map(encode_byte_string)
                 #| 'Write player score to pub sub' >> beam.io.WriteToPubSub(output_topic)
@@ -60,7 +60,7 @@ player_score = (
 team_score = (
                 pubsub_data 
                 | 'Form k,v pair of (team_score, 1)' >> beam.Map( score_pair )
-                | 'Window for team' >> beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING) 
+                | 'Window for team' >> beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING) #Trigger sum after 10 same team accumulated.
                 | 'Group teams and their score' >> beam.CombinePerKey(sum)
                 | 'Encode teams info to byte string' >> beam.Map(encode_byte_string)
                 | 'Write team score to pub sub' >> beam.io.WriteToPubSub(output_topic)
