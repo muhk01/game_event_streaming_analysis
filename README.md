@@ -55,6 +55,30 @@ A sliding window is another type of windowing strategy used in stream processing
 
 In a sliding window, you specify both a window size and a "sliding" or "advancement" duration. The window size determines the size of each window, and the sliding duration determines the frequency at which the window moves forward.
 
+## Trigger Counter
+Trigger is a mechanism that determines when to emit partial results (intermediate results) during the processing of windowed data. Triggers are essential for controlling how data is accumulated within windows and when to produce results for downstream processing. Triggers play a crucial role in both batch and streaming processing, but they are especially significant in streaming data scenarios. When data is being processed within windows, a trigger decides when to emit the intermediate results based on the arrival of data elements and the passage of time. 
+Setup Custom trigger Counter :
+```
+beam.WindowInto(window.GlobalWindows(), trigger=Repeatedly(AfterCount(10)), accumulation_mode=AccumulationMode.ACCUMULATING)
+```
+
+This sets up a custom trigger for the windowing operation. The trigger used here is Repeatedly, which repeatedly fires the trigger condition based on the specified sub-trigger. In this case, the sub-trigger is AfterCount(10), which fires after every 10 data elements have been processed within the global window.
+
+Suppose we have the following data:
+
+```
+Data: ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N']
+```
+When using the specified windowing transformation, the data elements will all be grouped into a single global window. The custom trigger Repeatedly(AfterCount(10)) will fire after every 10 elements have been processed within the window.
+
+The processing of the data elements will look like this:
+
+1. Process the first 10 data elements (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']).
+2. The trigger AfterCount(10) fires, and the intermediate result for the first 10 elements is emitted.
+3. Process the next 4 data elements (['K', 'L', 'M', 'N']).
+4. The trigger AfterCount(10) fires again, and the intermediate result for the next 4 elements is emitted.
+The final output will contain two intermediate results, one for each group of 10 elements, accumulated over time.
+
 ## Watermark 
 Watermarks are used to determine how far the processing has progressed with respect to event time. The watermark indicates the maximum timestamp seen so far and acts as a progress marker for event time. When the watermark moves past a window's end time, the window is considered closed, and any remaining data is handled as late data.
 
