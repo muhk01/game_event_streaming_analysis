@@ -1,4 +1,4 @@
-![image](https://github.com/muhk01/game_event_streaming_analysis/assets/57218286/d8d99734-6b3d-4b54-8211-c1fb6508f792)# Exercise of Fundamental Streaming Data Pipeline
+# Exercise of Fundamental Streaming Data Pipeline
 
 ## Tumbling Window
 ![alt text](https://raw.githubusercontent.com/muhk01/game_event_streaming_analysis/main/exercise/img/fixed_window.PNG)
