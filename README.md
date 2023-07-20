@@ -184,3 +184,14 @@ with beam.Pipeline() as p:
 In this example, we use a fixed window of size 3 elements. The AfterCount trigger fires when 5 elements have been processed within the window. Accumulation mode is set to DISCARDING to discard early results.
 
 These are just examples to illustrate different triggers. The choice of trigger depends on your specific use case and desired behavior for processing data within windows. You can customize triggers, combine multiple triggers, and use complex logic to achieve the desired windowing behavior and control when to emit partial results.
+
+### Accumulating Mode
+![alt text](https://raw.githubusercontent.com/muhk01/game_event_streaming_analysis/main/exercise/img/trigger.PNG)
+
+Accumulation Mode:
+In the accumulating mode, when a trigger fires and produces a partial result, that result is accumulated and preserved until the window is closed. Subsequent trigger firings will accumulate additional partial results, and they all contribute to the final output for the window.
+This mode is useful when you want to maintain intermediate results over time and combine them to produce the final output when the window is closed. Accumulating mode is commonly used for combining multiple partial results into a complete result, such as summing values or computing other aggregate statistics over a window.
+
+Discarding Mode:
+In the discarding mode, when a trigger fires and produces a partial result, that result is discarded and not preserved beyond the trigger firing. Each trigger firing produces a new partial result, but the previous results are not accumulated or maintained.
+This mode is useful when you are only interested in the latest intermediate result and do not need to keep or combine previous partial results. Discarding mode is often used when the latest intermediate result is sufficient for further processing, and there is no need to accumulate or store historical partial results.
