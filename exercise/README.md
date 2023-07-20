@@ -5,6 +5,29 @@
 
 A tumbling window is a specific type of fixed window. In a tumbling window, you could specify a fixed duration for each window, tumbling windows are non-overlapping. They do not slide or have any overlap between consecutive windows. When the duration of a tumbling window is reached, it "tumbles" to the next fixed time interval, starting a new window.
 
+By applying this code below, we could set window to 20 Second
+```
+beam.WindowInto(window.FixedWindows(20))
+```
+
+The window.FixedWindows(20) creates fixed windows of 20 units of time. For example, if the first data element arrives at timestamp 0, it will be placed in the window [0, 20) (from 0 inclusive to 20 exclusive). If another data element arrives at timestamp 15, it will also be placed in the window [0, 20) since the window size is fixed at 20 units of time.
+
+For example, suppose we have the following data with timestamps:
+```
+('A', 1) at timestamp 0
+('B', 2) at timestamp 10
+('C', 3) at timestamp 25
+('D', 4) at timestamp 45
+```
+With beam.WindowInto(window.FixedWindows(20)), the data will be divided into the following windows:
+
+```
+('A', 1) at timestamp 0
+('B', 2) at timestamp 10
+('C', 3) at timestamp 25
+('D', 4) at timestamp 45
+```
+
 ## Sliding Window
 
 ![alt text](https://raw.githubusercontent.com/muhk01/game_event_streaming_analysis/main/exercise/img/sliding_window.PNG)
