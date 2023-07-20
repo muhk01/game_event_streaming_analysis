@@ -37,7 +37,7 @@ In summary, to process fixed streaming data it is beneficial to include timestam
 
 Here are some reasons why adding timestamps at the publisher side is advantageous:
 
-Event Ordering: As you mentioned, adding timestamps at the publisher side ensures that the order of events is preserved. When data is sent with timestamps, the consuming side (subscriber) can process the data in the correct event time order. This is crucial for time-based windowing and accurate aggregation of data over time windows.
+Event Ordering: adding timestamps at the publisher side ensures that the order of events is preserved. When data is sent with timestamps, the consuming side (subscriber) can process the data in the correct event time order. This is crucial for time-based windowing and accurate aggregation of data over time windows.
 
 Event Time Processing: Many streaming data processing systems, including Apache Beam, perform event time processing, where events are ordered based on their timestamps, rather than the order in which they arrive. By providing timestamps at the publisher side, you enable event time processing in the consuming pipeline.
 
